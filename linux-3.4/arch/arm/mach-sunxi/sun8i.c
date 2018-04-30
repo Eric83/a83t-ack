@@ -42,6 +42,11 @@
 #include <mach/sunxi-chip.h>
 #include <mach/sunxi-smc.h>
 
+//Jasper +
+#include <linux/spi/spi.h>
+#include <linux/spi/spi_gpio.h>
+//Jasper -
+
 #include <linux/gpio.h>
 #include <linux/gpio_keys.h>
 #include <linux/input.h>
@@ -555,6 +560,7 @@ static __init int sun8i_gpio_init(void)
 {
   printk("%s\n", __func__);
 
+#if 0	//Jasper- for GPIO used for spi.
 	gpio_request(GPIO_USER_1, "GPIO_USER_1");
 	gpio_direction_output(GPIO_USER_1, 0);
 	gpio_export(GPIO_USER_1, 1);
@@ -574,7 +580,7 @@ static __init int sun8i_gpio_init(void)
 	gpio_direction_output(GPIO_USER_4, 0);
 	gpio_export(GPIO_USER_4, 1);
 	printk("GPIO_USER_4=%d\n", GPIO_USER_4);
-
+#endif
 	gpio_request(GPIO_LED, "GPIO_LED");
 	gpio_direction_output(GPIO_LED, 0);
 	gpio_export(GPIO_LED, 1);
@@ -602,6 +608,47 @@ static __init int sun8i_gpio_init(void)
   return 0;
 }
 late_initcall(sun8i_gpio_init);
+
+//Jasper +
+#if defined(CONFIG_SPI_GPIO) || defined(CONFIG_SPI_GPIO_MODULE)
+#define CAM_SPI_BUS_NUM	(4)
+
+static struct spi_gpio_platform_data sunxi_spi_gpio_pdata = {
+	.sck		= GPIO_CAM_SCL,
+	.mosi		= GPIO_CAM_DIN,
+	.miso		= GPIO_CAM_DOUT,
+	.num_chipselect	= 1,
+};
+
+static struct platform_device sunxi_spi_gpio = {
+	.name		= "spi_gpio",
+	.id		= CAM_SPI_BUS_NUM,
+	.dev		= {
+		.platform_data	= &sunxi_spi_gpio_pdata,
+	},
+};
+
+static struct spi_board_info sunxi_spi_devices[] __initdata = {
+	{
+		.modalias		= "ev76c570",
+		.max_speed_hz		= 800000,
+		.bus_num		= CAM_SPI_BUS_NUM,
+		.chip_select		= 0,
+		.controller_data	= (void *) GPIO_CAM_CS,
+	},
+};
+
+static void __init sunxi_init_spi(void)
+{
+	spi_register_board_info(sunxi_spi_devices,
+				ARRAY_SIZE(sunxi_spi_devices));
+	platform_device_register(&sunxi_spi_gpio);
+}
+#else
+static inline void sunxi_init_spi(void) {}
+#endif
+//Jasper -
+
 static void __init sunxi_dev_init(void)
 {
 #ifdef CONFIG_OF
@@ -620,7 +667,9 @@ static void __init sunxi_dev_init(void)
 	/*	ram console	platform device initialize*/
 	ram_console_device_init();
 #endif
-
+	//Jasper +
+	sunxi_init_spi();
+	//Jasper -
 }
 
 extern void __init sunxi_init_clocks(void);

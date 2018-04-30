@@ -58,7 +58,8 @@ else
 # obj-y			+= ov5640.o
 # obj-y			+= gs5604.o
 # obj-y			+= ov5647_mipi.o
-obj-y			+= mt9m001.o
+# obj-y			+= mt9m001.o
+obj-y			+= ev76c570.o
 
 endif
 

@@ -61,6 +61,8 @@ struct sensor_item sensor_list_t[] =
 	{	"ov7736"		,	0x42,		SENSOR_YUV	,	 PIXEL_NUM_0_3M		, CORE_CLK_RATE_FOR_2M},
 	{	"gc2155"		,	0x78,		SENSOR_YUV	,	 PIXEL_NUM_2M		, CORE_CLK_RATE_FOR_2M},
 	{	"mt9m001"		,	0x5d,		SENSOR_RAW	,	 PIXEL_NUM_2M		, CORE_CLK_RATE_FOR_2M},
+	/* EV76C570 spi sensor, fake i2c address 0xff */
+	{	"ev76c570"		,	0xff,		SENSOR_RAW	,	 PIXEL_NUM_2M		, CORE_CLK_RATE_FOR_2M},
 };
 int get_sensor_info(char *sensor_name, struct sensor_item *sensor_info)
 {

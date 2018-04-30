@@ -53,10 +53,10 @@
 //#define GPIO_WATCHDOG_WDI   GPIOE(4)    //¿´ÃÅ¹·Î¹¹·ÐÅºÅ
 //#define GPIO_WATCHDOG_EN    GPIOE(0)    //¿´ÃÅ¹·Î¹¹·ÐÅºÅ
 
-#define GPIO_USER_1         GPIOL(4)    //356
-#define GPIO_USER_2         GPIOE(16)   //144
-#define GPIO_USER_3         GPIOL(10)   //362
-#define GPIO_USER_4         GPIOH(5)    //229
+//#define GPIO_USER_1         GPIOL(4)    //356
+//#define GPIO_USER_2         GPIOE(16)   //144
+//#define GPIO_USER_3         GPIOL(10)   //362
+//#define GPIO_USER_4         GPIOH(5)    //229
 
 #define GPIO_DISWITCH       GPIOH(8)    //232
 
@@ -69,5 +69,10 @@
 #define GPIO_KEY_2          GPIOH(10)
 #define GPIO_KEY_3          GPIOL(11)
 #define GPIO_KEY_4          GPIOL(5)
+
+#define GPIO_CAM_DIN	GPIOE(16)	/* PE16 - MOSI */
+#define GPIO_CAM_DOUT	GPIOL(10)	/* PL10 - MISO */
+#define GPIO_CAM_SCL	GPIOH(5)	/* PH5  - CLK */
+#define GPIO_CAM_CS	GPIOL(4)	/* PL4  - CS */
 
 #endif /* __GPIO_Pt_H */

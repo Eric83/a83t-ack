@@ -592,6 +592,7 @@ static int sensor_power(struct v4l2_subdev *sd, int on)
 }
 static int sensor_reset(struct v4l2_subdev *sd, u32 val)
 {
+	vfe_dev_dbg("sensor reset %d!\n", val);
 	switch(val) {
 	case 0:
 		vfe_gpio_write(sd, RESET, CSI_RST_OFF);
@@ -736,7 +737,7 @@ static struct sensor_format_struct {
 
 
 static struct sensor_win_size sensor_win_sizes[] = {
-  /* VGA */
+  /* 1600x1200 */
     {
       .width	  = EV76C570_WIDTH,
       .height 	  = EV76C570_HEIGHT,
@@ -747,8 +748,8 @@ static struct sensor_win_size sensor_win_sizes[] = {
       .pclk       = MCLK,
       .fps_fixed  = 1,
       .bin_factor = 1,
-      .intg_min   = 1,
-      .intg_max   = 1200<<4,
+      .intg_min   = 30<<4,
+      .intg_max   = 1000<<4,
       .gain_min   = 1<<4,
       .gain_max   = 7<<4,
       .regs         = NULL,

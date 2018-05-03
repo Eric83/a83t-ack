@@ -631,7 +631,7 @@ static struct platform_device sunxi_spi_gpio = {
 static struct spi_board_info sunxi_spi_devices[] __initdata = {
 	{
 		.modalias		= "ev76c570",
-		.max_speed_hz		= 800000,
+		.max_speed_hz		= 100000,
 		.bus_num		= CAM_SPI_BUS_NUM,
 		.chip_select		= 0,
 		.controller_data	= (void *) GPIO_CAM_CS,

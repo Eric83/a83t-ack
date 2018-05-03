@@ -73,8 +73,8 @@ struct spi_device *spidev = NULL;
 /* Exposure time values, REF_CLK=24MHz, DATA_CLK=57MHz,
  * and 57MHz CLK_CTRL & 0xCD line_length, step is 28.77us
  */
-#define EV76C570_DEF_MIN_EXPOSURE	40	/* 40ms */
-#define EV76C570_DEF_MAX_EXPOSURE	1000	/* 1000ms */
+#define EV76C570_MIN_EXPOSURE		30	/* 30ms */
+#define EV76C570_MAX_EXPOSURE		1000	/* 1000ms */
 #define EV76C570_DEF_EXPOSURE		67
 #define EV76C570_EXPOSURE_STEP		1
 
@@ -451,11 +451,11 @@ static int sensor_s_exp(struct v4l2_subdev *sd, unsigned int exp_time)
 	int err;
 
 	vfe_dev_dbg("%s: exp_time %d.. \n", __func__, exp_time);
-	if ((exp_time < EV76C570_DEF_MIN_EXPOSURE) ||
-			(exp_time > EV76C570_DEF_MAX_EXPOSURE)) {
+	if ((exp_time < EV76C570_MIN_EXPOSURE) ||
+			(exp_time > EV76C570_MAX_EXPOSURE)) {
 		vfe_dev_err("Exposure time %d not within the legal range.\n", exp_time);
-		vfe_dev_err("Min time %d us Max time %d us",
-			EV76C570_DEF_MIN_EXPOSURE, EV76C570_DEF_MAX_EXPOSURE);
+		vfe_dev_err("Min time %d us Max time %d us \n",
+			EV76C570_MIN_EXPOSURE, EV76C570_MAX_EXPOSURE);
 		return -EINVAL;
 	}
 
@@ -489,13 +489,13 @@ static int sensor_s_gain(struct v4l2_subdev *sd, int gain)
 	int err = 0;
 
 	if ((gain < EV76C570_MIN_GAIN) || (gain > EV76C570_MAX_GAIN)) {
-		vfe_dev_err("Gain %d not within the legal range", gain);
+		vfe_dev_err("Gain %d not within the legal range \n", gain);
 		return -EINVAL;
 	}
 	set_analog_gain[0].val = (gain & 0x07) << 8;	/* Analog Gain */
 	err = ev76c570_write_regs(spidev, set_analog_gain);
 	if (err) {
-		vfe_dev_err("Error setting gain.%d", err);
+		vfe_dev_err("Error setting gain.%d \n", err);
 		return err;
 	} else
 		info->gain = gain;
@@ -529,7 +529,8 @@ static int sensor_power(struct v4l2_subdev *sd, int on)
 	case CSI_SUBDEV_STBY_ON:
 		vfe_dev_dbg("CSI_SUBDEV_STBY_ON!\n");
 		usleep_range(10000,12000);
-		vfe_gpio_write(sd, PWDN, CSI_STBY_ON);
+		//vfe_gpio_write(sd, PWDN, CSI_STBY_ON);
+		vfe_gpio_write(sd,RESET, CSI_RST_ON);
 		vfe_set_mclk(sd, OFF);
 		break;
 
@@ -538,9 +539,10 @@ static int sensor_power(struct v4l2_subdev *sd, int on)
 		vfe_set_mclk_freq(sd, MCLK);
 		vfe_set_mclk(sd, ON);
 		usleep_range(10000,12000);
-		vfe_gpio_write(sd,PWDN,CSI_STBY_OFF);
+		//vfe_gpio_write(sd,PWDN,CSI_STBY_OFF);
+		vfe_gpio_write(sd,RESET,CSI_RST_OFF);
 		usleep_range(10000,12000);
-		msleep(500);
+		msleep(50);
 		break;
 
 	case CSI_SUBDEV_PWR_ON:
@@ -564,6 +566,7 @@ static int sensor_power(struct v4l2_subdev *sd, int on)
 
 		vfe_gpio_write(sd,RESET,CSI_RST_OFF);
 		vfe_gpio_write(sd,PWDN,CSI_STBY_OFF);
+		msleep(50);
 		break;
 
 	case CSI_SUBDEV_PWR_OFF:
@@ -748,8 +751,8 @@ static struct sensor_win_size sensor_win_sizes[] = {
       .pclk       = MCLK,
       .fps_fixed  = 1,
       .bin_factor = 1,
-      .intg_min   = 30<<4,
-      .intg_max   = 1000<<4,
+      .intg_min   = EV76C570_MIN_EXPOSURE<<4,
+      .intg_max   = EV76C570_MAX_EXPOSURE<<4,
       .gain_min   = 1<<4,
       .gain_max   = 7<<4,
       .regs         = NULL,
@@ -937,7 +940,7 @@ static int sensor_queryctrl(struct v4l2_subdev *sd,
 	case V4L2_CID_GAIN:
 		return v4l2_ctrl_query_fill(qc, EV76C570_MIN_GAIN, EV76C570_MAX_GAIN, EV76C570_GAIN_STEP, EV76C570_DEF_GAIN);
 	case V4L2_CID_EXPOSURE:
-		return v4l2_ctrl_query_fill(qc, EV76C570_DEF_MIN_EXPOSURE, EV76C570_DEF_MAX_EXPOSURE, EV76C570_EXPOSURE_STEP, EV76C570_DEF_EXPOSURE);
+		return v4l2_ctrl_query_fill(qc, EV76C570_MIN_EXPOSURE, EV76C570_MAX_EXPOSURE, EV76C570_EXPOSURE_STEP, EV76C570_DEF_EXPOSURE);
 	}
 	return -EINVAL;
 }

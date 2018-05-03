@@ -237,7 +237,7 @@ static int spi_gpio_setup(struct spi_device *spi)
 			if (status)
 				return status;
 			status = gpio_direction_output(cs, spi->mode & SPI_CS_HIGH);
-			printk("Setup spi_gpio NCS %ld \n", cs);
+			//printk("Setup spi_gpio NCS %ld \n", cs);
 		}
 	}
 	if (!status)
@@ -262,7 +262,7 @@ static int __devinit spi_gpio_alloc(unsigned pin, const char *label, bool is_in)
 {
 	int value;
 
-	printk("%s: alloc gpio-%d as %s \n", __func__, pin, label);
+	//printk("%s: alloc gpio-%d as %s \n", __func__, pin, label);
 	value = gpio_request(pin, label);
 	if (value == 0) {
 		if (is_in)
@@ -271,7 +271,7 @@ static int __devinit spi_gpio_alloc(unsigned pin, const char *label, bool is_in)
 			value = gpio_direction_output(pin, 0);
 	}
 	// Jasper + for spi debug
-	gpio_export(pin, 1);
+	// gpio_export(pin, 1);
 
 	return value;
 }
@@ -315,7 +315,7 @@ free_mosi:
 	if (SPI_MOSI_GPIO != SPI_GPIO_NO_MOSI)
 		gpio_free(SPI_MOSI_GPIO);
 done:
-	printk("%s: MOSI.GPIO-%d, MISO.GPIO-%d, SCK.GPIO-%d \n", __func__, SPI_MOSI_GPIO, SPI_MISO_GPIO, SPI_SCK_GPIO);
+	//printk("%s: MOSI.GPIO-%d, MISO.GPIO-%d, SCK.GPIO-%d \n", __func__, SPI_MOSI_GPIO, SPI_MISO_GPIO, SPI_SCK_GPIO);
 	return value;
 }
 

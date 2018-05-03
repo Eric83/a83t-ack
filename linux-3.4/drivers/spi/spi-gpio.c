@@ -110,6 +110,7 @@ static inline void setsck(const struct spi_device *spi, int is_on)
 
 static inline void setmosi(const struct spi_device *spi, int is_on)
 {
+	printk("Set mosi gpio-%d value %d\n", SPI_MOSI_GPIO, is_on);
 	gpio_set_value(SPI_MOSI_GPIO, is_on);
 }
 
@@ -236,6 +237,7 @@ static int spi_gpio_setup(struct spi_device *spi)
 			if (status)
 				return status;
 			status = gpio_direction_output(cs, spi->mode & SPI_CS_HIGH);
+			printk("Setup spi_gpio NCS %d \n", cs);
 		}
 	}
 	if (!status)
@@ -260,6 +262,7 @@ static int __devinit spi_gpio_alloc(unsigned pin, const char *label, bool is_in)
 {
 	int value;
 
+	printk("%s: alloc gpio-%d as %s \n", __func__, pin, label);
 	value = gpio_request(pin, label);
 	if (value == 0) {
 		if (is_in)
@@ -267,7 +270,6 @@ static int __devinit spi_gpio_alloc(unsigned pin, const char *label, bool is_in)
 		else
 			value = gpio_direction_output(pin, 0);
 	}
-
 	// Jasper + for spi debug
 	gpio_export(pin, 1);
 
@@ -313,6 +315,7 @@ free_mosi:
 	if (SPI_MOSI_GPIO != SPI_GPIO_NO_MOSI)
 		gpio_free(SPI_MOSI_GPIO);
 done:
+	printk("%s: MOSI.GPIO-%d, MISO.GPIO-%d, SCK.GPIO-%d \n", __func__, SPI_MOSI_GPIO, SPI_MISO_GPIO, SPI_SCK_GPIO);
 	return value;
 }
 

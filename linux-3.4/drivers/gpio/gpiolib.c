@@ -1,4 +1,3 @@
-#define DEBUG	1
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/interrupt.h>

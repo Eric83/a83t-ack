@@ -110,8 +110,8 @@ static inline void setsck(const struct spi_device *spi, int is_on)
 
 static inline void setmosi(const struct spi_device *spi, int is_on)
 {
-	printk("Set mosi gpio-%d value %d\n", SPI_MOSI_GPIO, is_on);
-	gpio_set_value(SPI_MOSI_GPIO, is_on);
+	//printk("Set mosi gpio-%d value %d\n", SPI_MOSI_GPIO, is_on);
+	gpio_set_value(SPI_MOSI_GPIO, is_on != 0);
 }
 
 static inline int getmiso(const struct spi_device *spi)
@@ -237,7 +237,7 @@ static int spi_gpio_setup(struct spi_device *spi)
 			if (status)
 				return status;
 			status = gpio_direction_output(cs, spi->mode & SPI_CS_HIGH);
-			printk("Setup spi_gpio NCS %d \n", cs);
+			printk("Setup spi_gpio NCS %ld \n", cs);
 		}
 	}
 	if (!status)

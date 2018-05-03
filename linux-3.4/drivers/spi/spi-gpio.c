@@ -267,6 +267,10 @@ static int __devinit spi_gpio_alloc(unsigned pin, const char *label, bool is_in)
 		else
 			value = gpio_direction_output(pin, 0);
 	}
+
+	// Jasper + for spi debug
+	gpio_export(pin, 1);
+
 	return value;
 }
 

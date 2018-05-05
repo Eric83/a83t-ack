@@ -664,11 +664,13 @@ static int sensor_init(struct v4l2_subdev *sd, u32 val)
 	info->tpf.numerator = 1;            
 	info->tpf.denominator = 25;    /* 25fps */    
 
-	//ret = sensor_write_array(sd, sensor_default_regs, ARRAY_SIZE(sensor_default_regs));
-	ret = ev76c570_write_regs(spidev, initial_common_regs);
-	if(ret < 0) {
-		vfe_dev_err("write initial_common_regs error\n");
-		return ret;
+	if (info->init_first_flag) {
+		/* first init common regs */
+		ret = ev76c570_write_regs(spidev, initial_common_regs);
+		if(ret < 0) {
+			vfe_dev_err("write initial_common_regs error\n");
+			return ret;
+		}
 	}
 
 	ret = ev76c570_write_regs(spidev, initial_setup_regs);
@@ -753,7 +755,7 @@ static struct sensor_win_size sensor_win_sizes[] = {
       .bin_factor = 1,
       .intg_min   = EV76C570_MIN_EXPOSURE<<4,
       .intg_max   = EV76C570_MAX_EXPOSURE<<4,
-      .gain_min   = 1<<4,
+      .gain_min   = 0,
       .gain_max   = 7<<4,
       .regs         = NULL,
       .regs_size    = 0,

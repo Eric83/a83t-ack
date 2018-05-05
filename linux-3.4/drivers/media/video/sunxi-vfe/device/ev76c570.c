@@ -541,8 +541,8 @@ static int sensor_power(struct v4l2_subdev *sd, int on)
 		usleep_range(10000,12000);
 		//vfe_gpio_write(sd,PWDN,CSI_STBY_OFF);
 		vfe_gpio_write(sd,RESET,CSI_RST_OFF);
-		usleep_range(10000,12000);
-		msleep(50);
+		usleep_range(40000,50000);
+		//msleep(50);
 		break;
 
 	case CSI_SUBDEV_PWR_ON:
@@ -566,7 +566,8 @@ static int sensor_power(struct v4l2_subdev *sd, int on)
 
 		vfe_gpio_write(sd,RESET,CSI_RST_OFF);
 		vfe_gpio_write(sd,PWDN,CSI_STBY_OFF);
-		msleep(50);
+		usleep_range(40000,50000);
+		//msleep(50);
 		break;
 
 	case CSI_SUBDEV_PWR_OFF:

@@ -449,18 +449,20 @@ static int sensor_s_exp(struct v4l2_subdev *sd, unsigned int exp_time)
 	struct sensor_info *info = to_state(sd);
 	u32 coarse_int_time = 0;
 	int err;
+	unsigned int sexp_time = exp_time;
 
-	vfe_dev_dbg("%s: exp_time %d.. \n", __func__, exp_time);
-	if ((exp_time < EV76C570_MIN_EXPOSURE) ||
-			(exp_time > EV76C570_MAX_EXPOSURE)) {
-		vfe_dev_err("Exposure time %d not within the legal range.\n", exp_time);
+	vfe_dev_dbg("%s: exp_time %d.. \n", __func__, sexp_time);
+	if ((sexp_time < EV76C570_MIN_EXPOSURE) ||
+			(sexp_time > EV76C570_MAX_EXPOSURE)) {
+		vfe_dev_err("Exposure time %d not within the legal range. use default\n", sexp_time);
 		vfe_dev_err("Min time %d us Max time %d us \n",
 			EV76C570_MIN_EXPOSURE, EV76C570_MAX_EXPOSURE);
-		return -EINVAL;
+		sexp_time = EV76C570_DEF_EXPOSURE;
+		//return -EINVAL;
 	}
 
 	/* for line_length & clk_ctrl, 28.77us per step */
-	coarse_int_time = (exp_time * 1000) / 29;
+	coarse_int_time = (sexp_time * 1000) / 29;
 
 	set_exposure_time[0].val = coarse_int_time;	/* Analog Gain */
 	err = ev76c570_write_regs(spidev, set_exposure_time);
@@ -468,7 +470,7 @@ static int sensor_s_exp(struct v4l2_subdev *sd, unsigned int exp_time)
 		vfe_dev_err("Error %d setting gain regs.", err);
 		return err;
 	} else
-		info->exp = exp_time;
+		info->exp = sexp_time;
 
 	return 0;
 }
@@ -487,18 +489,20 @@ static int sensor_s_gain(struct v4l2_subdev *sd, int gain)
 {
 	struct sensor_info *info = to_state(sd);
 	int err = 0;
+	int sgain = gain;
 
-	if ((gain < EV76C570_MIN_GAIN) || (gain > EV76C570_MAX_GAIN)) {
-		vfe_dev_err("Gain %d not within the legal range \n", gain);
-		return -EINVAL;
+	if ((sgain < EV76C570_MIN_GAIN) || (sgain > EV76C570_MAX_GAIN)) {
+		vfe_dev_err("Gain %d not within the legal range, use default\n", gain);
+		sgain = EV76C570_DEF_GAIN;
+		//return -EINVAL;
 	}
-	set_analog_gain[0].val = (gain & 0x07) << 8;	/* Analog Gain */
+	set_analog_gain[0].val = (sgain & 0x07) << 8;	/* Analog Gain */
 	err = ev76c570_write_regs(spidev, set_analog_gain);
 	if (err) {
 		vfe_dev_err("Error setting gain.%d \n", err);
 		return err;
 	} else
-		info->gain = gain;
+		info->gain = sgain;
 
 	return 0;
 }

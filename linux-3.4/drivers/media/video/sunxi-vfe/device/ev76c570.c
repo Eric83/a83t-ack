@@ -732,11 +732,11 @@ static struct sensor_format_struct {
 	int bpp;   /* Bytes per pixel */
 }sensor_formats[] = {
 	{
-		.desc           = "Raw RGB Bayer",
-		.mbus_code      = V4L2_MBUS_FMT_SBGGR10_1X10,
+		.desc           = "YUYV 4:2:2",
+		.mbus_code      = V4L2_MBUS_FMT_YUYV8_2X8,
 		//.regs 	        = sensor_fmt_raw,
 		//.regs_size      = ARRAY_SIZE(sensor_fmt_raw),
-		.bpp            = 1
+		.bpp            = 2,
 	},
 };
 #define N_FMTS ARRAY_SIZE(sensor_formats)

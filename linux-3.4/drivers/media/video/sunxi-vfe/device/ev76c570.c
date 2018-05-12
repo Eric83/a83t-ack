@@ -454,14 +454,14 @@ static int sensor_s_exp(struct v4l2_subdev *sd, unsigned int exp_time)
 	vfe_dev_dbg("%s: exp_time %d.. \n", __func__, sexp_time);
 	if ((sexp_time < EV76C570_MIN_EXPOSURE) ||
 			(sexp_time > EV76C570_MAX_EXPOSURE)) {
-		vfe_dev_err("Exposure time %d not within the legal range. use default\n", sexp_time);
-		vfe_dev_err("Min time %d us Max time %d us \n",
+		vfe_dev_dbg("Exposure time %d not within the legal range. use default\n", sexp_time);
+		vfe_dev_dbg("Min time %d us Max time %d ms \n",
 			EV76C570_MIN_EXPOSURE, EV76C570_MAX_EXPOSURE);
 		sexp_time = EV76C570_DEF_EXPOSURE;
 		//return -EINVAL;
 	}
 
-	/* for line_length & clk_ctrl, 28.77us per step */
+	/* for line_length = 0xCB & clk_ctrl = 57MHz, 29.2 us per step */
 	coarse_int_time = (sexp_time * 1000) / 29;
 
 	set_exposure_time[0].val = coarse_int_time;	/* Analog Gain */
@@ -492,7 +492,7 @@ static int sensor_s_gain(struct v4l2_subdev *sd, int gain)
 	int sgain = gain;
 
 	if ((sgain < EV76C570_MIN_GAIN) || (sgain > EV76C570_MAX_GAIN)) {
-		vfe_dev_err("Gain %d not within the legal range, use default\n", gain);
+		vfe_dev_dbg("Gain %d not within the legal range, use default\n", gain);
 		sgain = EV76C570_DEF_GAIN;
 		//return -EINVAL;
 	}

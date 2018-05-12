@@ -1313,7 +1313,8 @@ bool V4L2CameraDevice::captureThread()
 #endif
 	}
 //PEITE +
-	if(!mIsUsbCamera){
+	//if(!mIsUsbCamera){
+	if(0) {	// Jasper - needn't do for ev76c570
 
 		// long histgram[256];
 		// memset(histgram, 0, sizeof(long)*256);

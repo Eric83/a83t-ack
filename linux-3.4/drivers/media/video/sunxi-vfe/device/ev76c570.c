@@ -138,6 +138,31 @@ static struct ev76c570_reg set_exposure_time[] = {
 	{EV76C570_TOK_TERM, 0, 0},	/* End of List */
 };
 
+/*  */
+static struct ev76c570_reg sensor_sxga_regs[] = {
+	//{EV76C570_16BIT, 0x0E, 0x0906},
+	{EV76C570_16BIT, 0x0F, 0x0000},
+
+	{EV76C570_16BIT, 0x10, 0x0000},
+	{EV76C570_16BIT, 0x11, 0x0000},
+	{EV76C570_16BIT, 0x12, 0x007E},	/* roi1_0l_1, (1212-960)/2=126 */
+	//{EV76C570_16BIT, 0x13, 0x0400},
+	{EV76C570_16BIT, 0x13, 0x03C0},	/* roi1_h_1, 960 */
+	{EV76C570_16BIT, 0x14, 0x00A6},	/* roi1_0c_1, (1612-1280)/2=166 */
+	//{EV76C570_16BIT, 0x15, 0x0500},
+	{EV76C570_16BIT, 0x15, 0x0500},	/* roi1_w_1, 1280 */
+	{EV76C570_16BIT, 0x16, 0x0000},
+	{EV76C570_16BIT, 0x17, 0x0000},
+	//{EV76C570_16BIT, 0x18, 0x0506},
+	{EV76C570_16BIT, 0x18, 0x0000},
+	{EV76C570_16BIT, 0x19, 0x0000},
+	{EV76C570_16BIT, 0x1A, 0x0000},
+
+	/* updating, other ROIs */
+
+	{EV76C570_TOK_TERM, 0, 0},	/* End of List */
+};
+
 
 
 static struct ev76c570_reg initial_common_regs[] = {
@@ -747,25 +772,45 @@ static struct sensor_format_struct {
 
 
 static struct sensor_win_size sensor_win_sizes[] = {
-  /* 1600x1200 */
-    {
-      .width	  = EV76C570_WIDTH,
-      .height 	  = EV76C570_HEIGHT,
-      .hoffset	  = 0,
-      .voffset	  = 0,
-      .hts        = 1600,
-      .vts        = 1200,
-      .pclk       = 57*1000*1000,	//PCLK 57MHz
-      .fps_fixed  = 1,
-      .bin_factor = 1,
-      .intg_min   = EV76C570_MIN_EXPOSURE,
-      .intg_max   = EV76C570_MAX_EXPOSURE,
-      .gain_min   = 0,
-      .gain_max   = 7,
-      .regs         = NULL,
-      .regs_size    = 0,
-      .set_size     = NULL,
-    },
+	/* 1600x1200 */
+	{
+		.width	      = EV76C570_WIDTH,
+		.height       = EV76C570_HEIGHT,
+		.hoffset      = 0,
+		.voffset      = 0,
+		.hts          = 1600,
+		.vts          = 1200,
+		.pclk         = 57*1000*1000,	//PCLK 57MHz
+		.fps_fixed    = 1,
+		.bin_factor   = 1,
+		.intg_min     = EV76C570_MIN_EXPOSURE<<4,
+		.intg_max     = EV76C570_MAX_EXPOSURE<<4,
+		.gain_min     = 0,
+		.gain_max     = 7<<4,
+		.regs         = NULL,
+		.regs_size    = 0,
+		.set_size     = NULL,
+	},
+
+	/* 1280x960 */
+	{
+		.width        = SXGA_WIDTH,
+		.height       = SXGA_HEIGHT,
+		.hoffset      = 0,
+		.voffset      = 0,
+		.hts          = 1280,
+		.vts          = 960,
+		.pclk         = 57*1000*1000,	//PCLK 57MHz
+		.fps_fixed    = 1,
+		.bin_factor   = 1,
+		.intg_min     = EV76C570_MIN_EXPOSURE<<4,
+		.intg_max     = EV76C570_MAX_EXPOSURE<<4,
+		.gain_min     = 0,
+		.gain_max     = 7<<4,
+		.regs         = sensor_sxga_regs,
+		.regs_size    = ARRAY_SIZE(sensor_sxga_regs),
+		.set_size     = NULL,
+	},
 };
 
 #define N_WIN_SIZES (ARRAY_SIZE(sensor_win_sizes))
@@ -879,12 +924,22 @@ static int sensor_s_fmt(struct v4l2_subdev *sd,
 	//if (wsize->regs)
 	//	LOG_ERR_RET(sensor_write_array(sd, wsize->regs, wsize->regs_size))
 	
+#if 0
 	ret = ev76c570_write_regs(spidev, initial_setup_regs);
 	if(ret < 0) {
 		vfe_dev_err("write initial_setup_regs error\n");
 		return ret;
 	}
-
+#else
+	if (wsize->regs) {
+		vfe_dev_dbg("set ev76c570 regs for wsize->regs \n");
+		ret = ev76c570_write_regs(spidev, wsize->regs);
+		if(ret < 0) {
+			vfe_dev_err("write wsize->regs error\n");
+			return ret;
+		}
+	}
+#endif
 	if (wsize->set_size)
 		LOG_ERR_RET(wsize->set_size(sd))
 

@@ -138,7 +138,7 @@ static struct ev76c570_reg set_exposure_time[] = {
 	{EV76C570_TOK_TERM, 0, 0},	/* End of List */
 };
 
-/*  */
+/* SXGA-1280x960 */
 static struct ev76c570_reg sensor_sxga_regs[] = {
 	//{EV76C570_16BIT, 0x0E, 0x0906},
 	{EV76C570_16BIT, 0x0F, 0x0000},
@@ -163,6 +163,31 @@ static struct ev76c570_reg sensor_sxga_regs[] = {
 	{EV76C570_TOK_TERM, 0, 0},	/* End of List */
 };
 
+
+/* XGA-1024x768 */
+static struct ev76c570_reg sensor_xga_regs[] = {
+	//{EV76C570_16BIT, 0x0E, 0x0906},
+	{EV76C570_16BIT, 0x0F, 0x0000},
+
+	{EV76C570_16BIT, 0x10, 0x0000},
+	{EV76C570_16BIT, 0x11, 0x0000},
+	{EV76C570_16BIT, 0x12, 0x00DE},	/* roi1_0l_1, (1212-768)/2=126 */
+	//{EV76C570_16BIT, 0x13, 0x0400},
+	{EV76C570_16BIT, 0x13, 0x0300},	/* roi1_h_1, 768 */
+	{EV76C570_16BIT, 0x14, 0x0126},	/* roi1_0c_1, (1612-1024)/2=294 */
+	//{EV76C570_16BIT, 0x15, 0x0500},
+	{EV76C570_16BIT, 0x15, 0x0400},	/* roi1_w_1, 1024 */
+	{EV76C570_16BIT, 0x16, 0x0000},
+	{EV76C570_16BIT, 0x17, 0x0000},
+	//{EV76C570_16BIT, 0x18, 0x0506},
+	{EV76C570_16BIT, 0x18, 0x0000},
+	{EV76C570_16BIT, 0x19, 0x0000},
+	{EV76C570_16BIT, 0x1A, 0x0000},
+
+	/* updating, other ROIs */
+
+	{EV76C570_TOK_TERM, 0, 0},	/* End of List */
+};
 
 
 static struct ev76c570_reg initial_common_regs[] = {
@@ -537,12 +562,12 @@ static int sensor_s_exp_gain(struct v4l2_subdev *sd, struct sensor_exp_gain *exp
 	int exp_val = 0;
 	int gain_val = 0;
 
-	exp_val = exp_gain->exp_val;
-	gain_val = exp_gain->gain_val;
+	exp_val = exp_gain->exp_val/16;
+	gain_val = exp_gain->gain_val/16;
 
 
-	sensor_s_exp(sd, exp_val);
-	sensor_s_gain(sd, gain_val);
+	//sensor_s_exp(sd, exp_val);
+	//sensor_s_gain(sd, gain_val);
 	
 	return 0;
 }
@@ -761,7 +786,7 @@ static struct sensor_format_struct {
 		.mbus_code      = V4L2_MBUS_FMT_SBGGR10_1X10,
 		//.regs 	        = sensor_fmt_raw,
 		//.regs_size      = ARRAY_SIZE(sensor_fmt_raw),
-		.bpp            = 2,
+		.bpp            = 1,
 	},
 };
 #define N_FMTS ARRAY_SIZE(sensor_formats)
@@ -809,6 +834,26 @@ static struct sensor_win_size sensor_win_sizes[] = {
 		.gain_max     = 7<<4,
 		.regs         = sensor_sxga_regs,
 		.regs_size    = ARRAY_SIZE(sensor_sxga_regs),
+		.set_size     = NULL,
+	},
+
+	/* 1024x768 */
+	{
+		.width        = XGA_WIDTH,
+		.height       = XGA_HEIGHT,
+		.hoffset      = 0,
+		.voffset      = 0,
+		.hts          = 1024,
+		.vts          = 768,
+		.pclk         = 57*1000*1000,	//PCLK 57MHz
+		.fps_fixed    = 1,
+		.bin_factor   = 1,
+		.intg_min     = EV76C570_MIN_EXPOSURE<<4,
+		.intg_max     = EV76C570_MAX_EXPOSURE<<4,
+		.gain_min     = 0,
+		.gain_max     = 7<<4,
+		.regs         = sensor_xga_regs,
+		.regs_size    = ARRAY_SIZE(sensor_xga_regs),
 		.set_size     = NULL,
 	},
 };
@@ -940,6 +985,9 @@ static int sensor_s_fmt(struct v4l2_subdev *sd,
 		}
 	}
 #endif
+	/* Set default exposure time */
+	sensor_s_exp(sd, EV76C570_DEF_EXPOSURE);
+
 	if (wsize->set_size)
 		LOG_ERR_RET(wsize->set_size(sd))
 

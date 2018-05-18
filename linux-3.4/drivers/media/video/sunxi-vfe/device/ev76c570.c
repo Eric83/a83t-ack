@@ -83,8 +83,8 @@ struct spi_device *spidev = NULL;
 #define EV76C570_MAX_WIDTH              1600
 #define EV76C570_MAX_HEIGHT             1200
 
-#define EV76C570_WIDTH                  1280
-#define EV76C570_HEIGHT                 960
+#define EV76C570_WIDTH                  1600
+#define EV76C570_HEIGHT                 1200
 
 /* EV76C570 has 8/16 registers */
 #define EV76C570_8BIT			1
@@ -800,7 +800,6 @@ static struct sensor_format_struct {
 
 
 static struct sensor_win_size sensor_win_sizes[] = {
-#if 0
 	/* 1600x1200 */
 	{
 		.width	      = EV76C570_WIDTH,
@@ -820,7 +819,7 @@ static struct sensor_win_size sensor_win_sizes[] = {
 		.regs_size    = 0,
 		.set_size     = NULL,
 	},
-#endif
+
 	/* 1280x960 */
 	{
 		.width        = SXGA_WIDTH,

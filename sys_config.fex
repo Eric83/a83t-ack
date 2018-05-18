@@ -848,7 +848,7 @@ vip_csi_sck               = port:PE14<2><default><default><default>
 vip_csi_sda               = port:PE15<2><default><default><default>
 
 
-vip_dev0_mname           = "ev76c570"
+vip_dev0_mname           = "ev76c560"
 vip_dev0_pos             = "rear"
 ;vip_dev0_lane            = 2
 vip_dev0_twi_id          = 2

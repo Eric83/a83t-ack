@@ -179,18 +179,18 @@ static struct ev76c560_reg initial_common_regs[] = {
 };
 
 static struct ev76c560_reg initial_setup_regs[] = {
-	{EV76C560_16BIT, 0x04, 0x8070},    /* 15.72us @ CLK_CTRL=57MHz */
+	{EV76C560_16BIT, 0x04, 0x80D0},    /* 29.2us @ CLK_CTRL=57MHz */
 	{EV76C560_16BIT, 0x05, 0x0000},
 	{EV76C560_16BIT, 0x06, 0xD05A},
 	{EV76C560_16BIT, 0x07, 0x0A01},
-	{EV76C560_16BIT, 0x08, 0xDF21},    /* CLK_REF=24MHz, CLK_PLL=M/(NxP)=114MHz, CLK_CHAIN=DATA_CLK=114MHz, CLK_CTRL=57MHz*/
+	{EV76C560_16BIT, 0x08, 0xDF22},    /* CLK_REF=24MHz, CLK_PLL=M/(NxP)=114MHz, CLK_CHAIN=DATA_CLK=57MHz, CLK_CTRL=57MHz*/
 	{EV76C560_16BIT, 0x09, 0x634B},    /* PLL P=4, N=8, M=152 */
 	//{EV76C560_16BIT, 0x0A, 0x02C1},
 	{EV76C560_16BIT, 0x0A, 0x00C0},
 	{EV76C560_16BIT, 0x0B, 0x0006},
 	{EV76C560_16BIT, 0x0C, 0x0000},
 	{EV76C560_16BIT, 0x0D, 0x0000},
-	{EV76C560_16BIT, 0x0E, 0x0426},    /* 16.7ms */
+	{EV76C560_16BIT, 0x0E, 0x0426},    /* 31ms */
 	{EV76C560_16BIT, 0x0F, 0x0000},
 
 	{EV76C560_16BIT, 0x10, 0x0000},
@@ -448,8 +448,8 @@ static int sensor_s_exp(struct v4l2_subdev *sd, unsigned int exp_time)
 		//return -EINVAL;
 	}
 
-	/* for line_length = 0x70 & clk_ctrl = 57MHz, 15.72 us per step */
-	coarse_int_time = (sexp_time * 1000) / 16;
+	/* for line_length = 0xD0 & clk_ctrl = 57MHz, 29.2 us per step */
+	coarse_int_time = (sexp_time * 1000) / 30;
 
 	set_exposure_time[0].val = coarse_int_time;	/* Analog Gain */
 	err = ev76c560_write_regs(spidev, set_exposure_time);
@@ -733,7 +733,7 @@ static struct sensor_format_struct {
 
 
 static struct sensor_win_size sensor_win_sizes[] = {
-  /* 1600x1200 */
+  /* 1280x1024 */
     {
       .width	  = EV76C560_WIDTH,
       .height 	  = EV76C560_HEIGHT,
@@ -741,7 +741,7 @@ static struct sensor_win_size sensor_win_sizes[] = {
       .voffset	  = 0,
       .hts        = 1280,
       .vts        = 1024,
-      .pclk       = 114*1000*1000,	//PCLK 114MHz
+      .pclk       = 57*1000*1000,	//PCLK 57MHz
       .fps_fixed  = 1,
       .bin_factor = 1,
       .intg_min   = EV76C560_MIN_EXPOSURE<<4,

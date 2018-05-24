@@ -140,6 +140,8 @@ static struct ev76c560_reg set_exposure_time[] = {
 
 
 static struct ev76c560_reg initial_common_regs[] = {
+	{EV76C560_16BIT, 0x41, 0x9630},
+	{EV76C560_16BIT, 0x45, 0xA7A5},
 	{EV76C560_16BIT, 0x46, 0x0200},
 	{EV76C560_16BIT, 0x47, 0x0013},
 	//{EV76C560_16BIT, 0x48, 0x7D55},
@@ -179,18 +181,18 @@ static struct ev76c560_reg initial_common_regs[] = {
 };
 
 static struct ev76c560_reg initial_setup_regs[] = {
-	{EV76C560_16BIT, 0x04, 0x80D0},    /* 29.2us @ CLK_CTRL=57MHz */
+	{EV76C560_16BIT, 0x04, 0x80B0},    /* 24.7us @ CLK_CTRL=57MHz */
 	{EV76C560_16BIT, 0x05, 0x0000},
 	{EV76C560_16BIT, 0x06, 0xD05A},
 	{EV76C560_16BIT, 0x07, 0x0A01},
 	{EV76C560_16BIT, 0x08, 0xDF22},    /* CLK_REF=24MHz, CLK_PLL=M/(NxP)=114MHz, CLK_CHAIN=DATA_CLK=57MHz, CLK_CTRL=57MHz*/
 	{EV76C560_16BIT, 0x09, 0x634B},    /* PLL P=4, N=8, M=152 */
 	//{EV76C560_16BIT, 0x0A, 0x02C1},
-	{EV76C560_16BIT, 0x0A, 0x00C0},
+	{EV76C560_16BIT, 0x0A, 0x02C0},
 	{EV76C560_16BIT, 0x0B, 0x0006},
 	{EV76C560_16BIT, 0x0C, 0x0000},
 	{EV76C560_16BIT, 0x0D, 0x0000},
-	{EV76C560_16BIT, 0x0E, 0x0426},    /* 31ms */
+	{EV76C560_16BIT, 0x0E, 0x0640},    /* 40ms */
 	{EV76C560_16BIT, 0x0F, 0x0000},
 
 	{EV76C560_16BIT, 0x10, 0x0000},
@@ -244,7 +246,7 @@ static struct ev76c560_reg initial_setup_regs[] = {
 	{EV76C560_16BIT, 0x36, 0x8080},
 	{EV76C560_16BIT, 0x37, 0x8080},
 	{EV76C560_16BIT, 0x38, 0x0080},
-	{EV76C560_16BIT, 0x39, 0x3880},
+	{EV76C560_16BIT, 0x39, 0x1880},
 	{EV76C560_16BIT, 0x3A, 0x80AF},
 	//{EV76C560_16BIT, 0x3B, 0x0000},
 	//{EV76C560_16BIT, 0x3C, 0xA520},
@@ -254,7 +256,7 @@ static struct ev76c560_reg initial_setup_regs[] = {
 
 	{EV76C560_16BIT, 0x40, 0x0000},
 	//{EV76C560_16BIT, 0x41, 0xE93F},
-	{EV76C560_16BIT, 0x41, 0x9730},    /* See EOS_AN_022_560.pdf */
+	{EV76C560_16BIT, 0x41, 0x9430},    /* See EOS_AN_022_560.pdf */
 	{EV76C560_16BIT, 0x42, 0x001D},
 	{EV76C560_16BIT, 0x43, 0x010F},
 	{EV76C560_16BIT, 0x44, 0x7C00},
@@ -448,8 +450,8 @@ static int sensor_s_exp(struct v4l2_subdev *sd, unsigned int exp_time)
 		//return -EINVAL;
 	}
 
-	/* for line_length = 0xD0 & clk_ctrl = 57MHz, 29.2 us per step */
-	coarse_int_time = (sexp_time * 1000) / 30;
+	/* for line_length = 0xB0 & clk_ctrl = 57MHz, 25 us per step */
+	coarse_int_time = (sexp_time * 1000) / 25;
 
 	set_exposure_time[0].val = coarse_int_time;	/* Analog Gain */
 	err = ev76c560_write_regs(spidev, set_exposure_time);

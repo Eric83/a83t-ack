@@ -72,7 +72,7 @@ struct spi_device *spidev = NULL;
 /* Exposure time values, REF_CLK=24MHz, DATA_CLK=114MHz,
  * and 57MHz CLK_CTRL & 0x70 line_length, step is 15.72us
  */
-#define EV76C560_MIN_EXPOSURE		16      /* 16ms */
+#define EV76C560_MIN_EXPOSURE		30      /* 16ms */
 #define EV76C560_MAX_EXPOSURE		500    /* 500ms */
 #define EV76C560_DEF_EXPOSURE		40
 #define EV76C560_EXPOSURE_STEP		1
@@ -137,6 +137,26 @@ static struct ev76c560_reg set_exposure_time[] = {
 	{EV76C560_TOK_TERM, 0, 0},	/* End of List */
 };
 
+/* XGA-1024x768 */
+static struct ev76c560_reg sensor_xga_regs[] = {
+	{EV76C560_16BIT, 0x0F, 0x0000},
+
+	{EV76C560_16BIT, 0x10, 0x0000},
+	{EV76C560_16BIT, 0x11, 0x0000},
+	{EV76C560_16BIT, 0x12, 0x0086},	/* roi1_0l_1, (1036-768)/2=134 */
+	{EV76C560_16BIT, 0x13, 0x0300},	/* roi1_h_1, 768 */
+	{EV76C560_16BIT, 0x14, 0x0086},	/* roi1_0c_1, (1292-1024)/2=134 */
+	{EV76C560_16BIT, 0x15, 0x0400},	/* roi1_w_1, 1024 */
+	{EV76C560_16BIT, 0x16, 0x0000},
+	{EV76C560_16BIT, 0x17, 0x0000},
+	{EV76C560_16BIT, 0x18, 0x0000},
+	{EV76C560_16BIT, 0x19, 0x0000},
+	{EV76C560_16BIT, 0x1A, 0x0000},
+
+	/* updating, other ROIs */
+
+	{EV76C560_TOK_TERM, 0, 0},	/* End of List */
+};
 
 
 static struct ev76c560_reg initial_common_regs[] = {
@@ -735,7 +755,27 @@ static struct sensor_format_struct {
 
 
 static struct sensor_win_size sensor_win_sizes[] = {
-  /* 1280x1024 */
+	/* 1024x768 */
+	{
+		.width        = XGA_WIDTH,
+		.height       = XGA_HEIGHT,
+		.hoffset      = 0,
+		.voffset      = 0,
+		.hts          = 1024,
+		.vts          = 768,
+		.pclk         = 57*1000*1000,	//PCLK 57MHz
+		.fps_fixed    = 1,
+		.bin_factor   = 1,
+		.intg_min     = EV76C560_MIN_EXPOSURE<<4,
+		.intg_max     = EV76C560_MAX_EXPOSURE<<4,
+		.gain_min     = 0,
+		.gain_max     = 7<<4,
+		.regs         = sensor_xga_regs,
+		.regs_size    = ARRAY_SIZE(sensor_xga_regs),
+		.set_size     = NULL,
+	},
+
+	/* 1280x1024 */
     {
       .width	  = EV76C560_WIDTH,
       .height 	  = EV76C560_HEIGHT,

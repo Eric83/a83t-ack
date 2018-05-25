@@ -4,7 +4,7 @@
  * Copyright(C) 2017 Jasper Zhang
  *
  */
-#define DEBUG 	1
+//#define DEBUG 	1
 
 #include <linux/init.h>
 #include <linux/module.h>
@@ -29,7 +29,7 @@ static struct v4l2_subdev *glb_sd;
 struct spi_device *spidev = NULL;
 
 //for internel driver debug
-#define DEV_DBG_EN      1
+#define DEV_DBG_EN      0
 #if(DEV_DBG_EN == 1)    
 #define vfe_dev_dbg(x,arg...) printk("[ev76c560]"x,##arg)
 #else

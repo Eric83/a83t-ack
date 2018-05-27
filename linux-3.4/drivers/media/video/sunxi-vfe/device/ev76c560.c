@@ -784,26 +784,27 @@ static struct sensor_win_size sensor_win_sizes[] = {
 		.regs_size    = ARRAY_SIZE(sensor_xga_regs),
 		.set_size     = NULL,
 	},
-
+#if 0
 	/* 1280x1024 */
-    {
-      .width	  = EV76C560_WIDTH,
-      .height 	  = EV76C560_HEIGHT,
-      .hoffset	  = 0,
-      .voffset	  = 0,
-      .hts        = 1280,
-      .vts        = 1024,
-      .pclk       = 57*1000*1000,	//PCLK 57MHz
-      .fps_fixed  = 1,
-      .bin_factor = 1,
-      .intg_min   = EV76C560_MIN_EXPOSURE<<4,
-      .intg_max   = EV76C560_MAX_EXPOSURE<<4,
-      .gain_min   = 0,
-      .gain_max   = 7<<4,
-      .regs         = NULL,
-      .regs_size    = 0,
-      .set_size     = NULL,
-    },
+	{
+		.width        = EV76C560_WIDTH,
+		.height       = EV76C560_HEIGHT,
+		.hoffset      = 0,
+		.voffset      = 0,
+		.hts          = 1280,
+		.vts          = 1024,
+		.pclk         = 57*1000*1000,	//PCLK 57MHz
+		.fps_fixed    = 1,
+		.bin_factor   = 1,
+		.intg_min     = EV76C560_MIN_EXPOSURE<<4,
+		.intg_max     = EV76C560_MAX_EXPOSURE<<4,
+		.gain_min     = 0,
+		.gain_max     = 7<<4,
+		.regs         = NULL,
+		.regs_size    = 0,
+		.set_size     = NULL,
+	},
+#endif
 };
 
 #define N_WIN_SIZES (ARRAY_SIZE(sensor_win_sizes))

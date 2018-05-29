@@ -162,7 +162,7 @@ static struct ev76c560_reg sensor_xga_regs[] = {
 
 
 static struct ev76c560_reg initial_common_regs[] = {
-	{EV76C560_16BIT, 0x41, 0x9630},
+	{EV76C560_16BIT, 0x41, 0x9730},
 	{EV76C560_16BIT, 0x45, 0xA7A5},
 	{EV76C560_16BIT, 0x46, 0x0200},
 	{EV76C560_16BIT, 0x47, 0x0013},
@@ -278,7 +278,7 @@ static struct ev76c560_reg initial_setup_regs[] = {
 
 	{EV76C560_16BIT, 0x40, 0x0000},
 	//{EV76C560_16BIT, 0x41, 0xE93F},
-	{EV76C560_16BIT, 0x41, 0x9430},    /* See EOS_AN_022_560.pdf */
+	{EV76C560_16BIT, 0x41, 0x9730},    /* See EOS_AN_022_560.pdf */
 	{EV76C560_16BIT, 0x42, 0x001D},
 	{EV76C560_16BIT, 0x43, 0x010F},
 	{EV76C560_16BIT, 0x44, 0x7C00},

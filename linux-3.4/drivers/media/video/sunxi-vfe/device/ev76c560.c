@@ -72,7 +72,7 @@ struct spi_device *spidev = NULL;
 /* Exposure time values, REF_CLK=24MHz, DATA_CLK=114MHz,
  * and 57MHz CLK_CTRL & 0x70 line_length, step is 15.72us
  */
-#define EV76C560_MIN_EXPOSURE		10      /* 16ms */
+#define EV76C560_MIN_EXPOSURE		1      /* 1ms */
 #define EV76C560_MAX_EXPOSURE		500    /* 500ms */
 #define EV76C560_DEF_EXPOSURE		20
 #define EV76C560_EXPOSURE_STEP		1
@@ -461,7 +461,7 @@ static int sensor_s_exp(struct v4l2_subdev *sd, unsigned int exp_time)
 	u32 coarse_int_time = 0;
 	int err;
 	unsigned int sexp_time = exp_time;
-	unsigned int roiwait = 0;
+	unsigned int roiwait = 0, llstep = 0;
 
 	vfe_dev_dbg("%s: exp_time %d.. \n", __func__, sexp_time);
 	if ((sexp_time < EV76C560_MIN_EXPOSURE) ||
@@ -473,12 +473,16 @@ static int sensor_s_exp(struct v4l2_subdev *sd, unsigned int exp_time)
 		//return -EINVAL;
 	}
 
-	/* for line_length = 0xB0 & clk_ctrl = 57MHz, 25 us per step */
-	coarse_int_time = (sexp_time * 1000) / 25;
+	/* FIXME: for line_length = 0xB0 & clk_ctrl = 57MHz, 25 us per step */
+	llstep = 25;	/* llstep = line_length * 8 / CLK_CTRL */
+	coarse_int_time = (sexp_time * 1000) / llstep;
 
 	/* exposure time < 40, max frame rate 25fps, see datasheet 19.2.2 */
 	if (sexp_time < 40) {
-		roiwait = (40-sexp_time)*1000 / 25;
+		roiwait = (40-sexp_time)*1000 / llstep;
+
+		if (roiwait > 0x7FF)
+			roiwait = 0x7FF;	/* See regh10, max 0x7ff */
 	}
 
 	set_exposure_time[0].val = coarse_int_time;	/* ROI intergration time */

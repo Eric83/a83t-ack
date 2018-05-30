@@ -292,7 +292,7 @@ static struct ev76c560_reg initial_setup_regs[] = {
 	{EV76C560_16BIT, 0x4C, 0x0A1E},
 	{EV76C560_16BIT, 0x4D, 0x016F},
 	{EV76C560_16BIT, 0x4E, 0x798D},
-	{EV76C560_16BIT, 0x4F, 0x565A},    // 0x555A?
+	{EV76C560_16BIT, 0x4F, 0x555A},    // 0x565A ?
 
 	{EV76C560_16BIT, 0x50, 0x0A0A},
 	{EV76C560_16BIT, 0x51, 0x0207},

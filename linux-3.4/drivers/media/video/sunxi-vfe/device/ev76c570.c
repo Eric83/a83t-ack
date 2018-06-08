@@ -76,6 +76,7 @@ struct spi_device *spidev = NULL;
 #define EV76C570_DEF_EXPOSURE		30
 #define EV76C570_EXPOSURE_STEP		1
 
+#define EV76C570_FRAMERATE          13      /* 15fps */
 
 /* capture 2 MP */
 #define EV76C570_MAX_WIDTH              1600
@@ -523,11 +524,13 @@ static int sensor_s_exp(struct v4l2_subdev *sd, unsigned int exp_time)
 	 * Treadout = 2 + init_line_nb + (6 x roi_expanded) + roi_height + extra_line_nb +1
 	 *          = 2 + 3 + 0 + 1200 + 8 + 1 = 1214 = 35ms
 	 */
-	if (sexp_time < 80) {
-		roiwait = (80-35)*1000 / llstep;
+	if (sexp_time < (1000 / EV76C570_FRAMERATE)) {
+		roiwait = ((1000/EV76C570_FRAMERATE)-35)*1000 / llstep;
 
 		if (roiwait > 0x7FF)
 			roiwait = 0x7FF;	/* See regh10, max 0x7ff */
+	} else {
+		roiwait = 0;
 	}
 
 	set_exposure_time[0].val = coarse_int_time;    /* Analog Gain */

@@ -69,11 +69,11 @@ struct spi_device *spidev = NULL;
 #define EV76C570_GAIN_STEP   	0x1
 
 /* Exposure time values, REF_CLK=24MHz, DATA_CLK=57MHz,
- * and 57MHz CLK_CTRL & 0xCD line_length, step is 28.77us
+ * and 57MHz CLK_CTRL & 0xCB line_length, step is 28.5us
  */
-#define EV76C570_MIN_EXPOSURE		30	/* 30ms */
-#define EV76C570_MAX_EXPOSURE		1000	/* 1000ms */
-#define EV76C570_DEF_EXPOSURE		67
+#define EV76C570_MIN_EXPOSURE		10      /* 30ms */
+#define EV76C570_MAX_EXPOSURE		1000    /* 1000ms */
+#define EV76C570_DEF_EXPOSURE		30
 #define EV76C570_EXPOSURE_STEP		1
 
 
@@ -134,6 +134,7 @@ static struct ev76c570_reg set_analog_gain[] = {
 
 static struct ev76c570_reg set_exposure_time[] = {
 	{EV76C570_16BIT, 0x0E, 0x0000},		/* ROI1 */
+	{EV76C570_16BIT, 0x10, 0x0000},		/* ROI1 wait */
 	/* updating, other ROIs */
 
 	{EV76C570_TOK_TERM, 0, 0},	/* End of List */
@@ -501,6 +502,7 @@ static int sensor_s_exp(struct v4l2_subdev *sd, unsigned int exp_time)
 	u32 coarse_int_time = 0;
 	int err;
 	unsigned int sexp_time = exp_time;
+	unsigned int roiwait = 0, llstep = 0;
 
 	vfe_dev_dbg("%s: exp_time %d.. \n", __func__, sexp_time);
 	if ((sexp_time < EV76C570_MIN_EXPOSURE) ||
@@ -512,10 +514,20 @@ static int sensor_s_exp(struct v4l2_subdev *sd, unsigned int exp_time)
 		//return -EINVAL;
 	}
 
-	/* for line_length = 0xCB & clk_ctrl = 57MHz, 29.2 us per step */
-	coarse_int_time = (sexp_time * 1000) / 29;
+	/* for line_length = 0xCB & clk_ctrl = 57MHz, 28.5 us per step */
+	llstep = 29;	/* llstep = line_length * 8 / CLK_CTRL */
+	coarse_int_time = (sexp_time * 1000) / llstep;
 
-	set_exposure_time[0].val = coarse_int_time;	/* Analog Gain */
+	/* exposure time < 67, max frame rate 15fps */
+	if (sexp_time < 67) {
+		roiwait = (67-sexp_time)*1000 / llstep;
+
+		if (roiwait > 0x7FF)
+			roiwait = 0x7FF;	/* See regh10, max 0x7ff */
+	}
+
+	set_exposure_time[0].val = coarse_int_time;    /* Analog Gain */
+	set_exposure_time[1].val = roiwait;            /* ROI extended wait time */
 	err = ev76c570_write_regs(spidev, set_exposure_time);
 	if (err) {
 		vfe_dev_err("Error %d setting gain regs.", err);
@@ -964,19 +976,6 @@ static int sensor_s_fmt(struct v4l2_subdev *sd,
 	if (ret)
 		return ret;
 
-	//sensor_write_array(sd, sensor_fmt->regs, sensor_fmt->regs_size);
-
-	//ret = 0;
-	//if (wsize->regs)
-	//	LOG_ERR_RET(sensor_write_array(sd, wsize->regs, wsize->regs_size))
-	
-#if 0
-	ret = ev76c570_write_regs(spidev, initial_setup_regs);
-	if(ret < 0) {
-		vfe_dev_err("write initial_setup_regs error\n");
-		return ret;
-	}
-#else
 	if (wsize->regs) {
 		vfe_dev_dbg("set ev76c570 regs for wsize->regs \n");
 		ret = ev76c570_write_regs(spidev, wsize->regs);
@@ -985,7 +984,7 @@ static int sensor_s_fmt(struct v4l2_subdev *sd,
 			return ret;
 		}
 	}
-#endif
+
 	/* Set default exposure time */
 	sensor_s_exp(sd, EV76C570_DEF_EXPOSURE);
 

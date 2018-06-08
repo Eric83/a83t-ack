@@ -515,12 +515,16 @@ static int sensor_s_exp(struct v4l2_subdev *sd, unsigned int exp_time)
 	}
 
 	/* for line_length = 0xCB & clk_ctrl = 57MHz, 28.5 us per step */
-	llstep = 29;	/* llstep = line_length * 8 / CLK_CTRL */
+	llstep = 28;	/* llstep = line_length * 8 / CLK_CTRL */
 	coarse_int_time = (sexp_time * 1000) / llstep;
 
-	/* exposure time < 67, max frame rate 15fps */
-	if (sexp_time < 67) {
-		roiwait = (67-sexp_time)*1000 / llstep;
+	/* exposure time < 71, max frame rate 14fps;
+	 * reg_t_frame_period = MAX(roiN_t_int_ll +1 + t_flash_on; Treadout + t_wait + roiN_t_wait_ext)
+	 * Treadout = 2 + init_line_nb + (6 x roi_expanded) + roi_height + extra_line_nb +1
+	 *          = 2 + 3 + 0 + 1200 + 8 + 1 = 1214 = 35ms
+	 */
+	if (sexp_time < 71) {
+		roiwait = (71-35)*1000 / llstep;
 
 		if (roiwait > 0x7FF)
 			roiwait = 0x7FF;	/* See regh10, max 0x7ff */
